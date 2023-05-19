@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="sxsd_java:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/sxsd_java_jar</output-path>
+    <root id="archive" name="sxsd_java.jar">
+      <element id="module-output" name="sxsd_java" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/fusesource/jansi/jansi/1.11/jansi-1.11.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/de/codeshelf/consoleui/consoleui/0.0.13/consoleui-0.0.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/lanterna/lanterna/3.1.1/lanterna-3.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/beust/jcommander/1.82/jcommander-1.82.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/jline/jline/2.14.6/jline-2.14.6.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
