@@ -7,12 +7,10 @@ public interface AuthUserInterface {
 
     /**
      * LOGIN_GETUSERINFO_LINK 获取用户信息链接
-     * USER_SCORE 获取用户成绩链接
      */
+    boolean Up_User_Info(BaseUser user);
     //cookie为Cookie
-    Boolean Up_User_Info(String cookie);
-    // accountId为用户id cookie为Cookie
-    String GET_USER_SCORE(int accountId, String cookie);
+    boolean Up_User_Info_ByCookie(String cookie);
     // 清除用户信息
     void Clear();
 }

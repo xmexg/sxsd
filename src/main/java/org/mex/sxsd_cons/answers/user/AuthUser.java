@@ -5,13 +5,10 @@ import com.google.gson.JsonObject;
 import org.mex.sxsd_cons.answers.net.BaseNetLink;
 import org.mex.sxsd_cons.answers.net.WebRequest;
 
-import java.util.Map;
 
 /**
  * 已登录的用户
- *
  * 包含更多的用户信息
- *
  * 只在运行时存在, 不保存
  */
 public class AuthUser implements AuthUserInterface{
@@ -46,34 +43,42 @@ public class AuthUser implements AuthUserInterface{
     public JsonObject INFO;
 
 
+    /**
+     * 通过基础用户BaseUser更新用户信息
+     * @param user 基础用户BaseUser
+     * @return 是否更新成功
+     */
     @Override
-    public Boolean Up_User_Info(String cookie) {
+    public boolean Up_User_Info(BaseUser user) {
+        this.PHONE = user.Phone;
+        return Up_User_Info_ByCookie(user.Cookie);
+    }
+
+    /**
+     * 通过Cookie更新用户信息
+     * 注意这种更新方式无法获取用户的手机号
+     * @param cookie Cookie
+     * @return 是否更新成功
+     */
+    public boolean Up_User_Info_ByCookie(String cookie){
         this.COOKIE = cookie;
-        String res = WebRequest.send(BaseNetLink.LOGIN_GETUSERINFO_LINK, cookie, BaseNetLink.BaseHeaders_GET, null);
+        String res = WebRequest.send(BaseNetLink.LOGIN_GETUSERINFO_LINK, COOKIE, BaseNetLink.BaseHeaders_GET, null);
         if(res == null) return false;
         Gson gson = new Gson();
-        Map<String, Object> resData = gson.fromJson(res, Map.class);
-        //读取resData中errCode的值
-        if(resData.get("errCode").equals(0)){
-            //读取resData中data的值
-            String data = resData.get("data").toString();
-            INFO = gson.fromJson(data, JsonObject.class);
+        JsonObject resData = gson.fromJson(res, JsonObject.class);
+        if(resData.get("errCode").getAsString().equals("0")) {
+            INFO = resData.get("data").getAsJsonObject();
             return true;
         }
         return false;
-    }
-
-    @Override
-    public String GET_USER_SCORE(int accountId, String cookie) {
-        return WebRequest.send(BaseNetLink.USER_SCORE + "?accountId=" + accountId, cookie, BaseNetLink.BaseHeaders_GET, null);
     }
 
     /**
      * 清除用户信息
      */
     public void Clear() {
-        this.PHONE = null;
         this.COOKIE = null;
+        this.PHONE = null;
         this.INFO = null;
     }
 }

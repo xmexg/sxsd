@@ -3,17 +3,16 @@ package org.mex.sxsd_cons.command;
 import org.mex.sxsd_cons.Console;
 import org.mex.sxsd_cons.Init;
 import org.mex.sxsd_cons.PrintFormat;
-import org.mex.sxsd_cons.answers.user.BaseUser;
 
 public class BaseCommand {
 
     public BaseCommand() {
         // 注册命令
-        Console.command.register(new versionCommand());
-        Console.command.register(new helpCommand());
-        Console.command.register(new exitCommand());
-        Console.command.register(new reloadLocUserCommand());
-        Console.command.register(new saveLocUserCommand());
+        Console.COMMAND.register(new versionCommand());
+        Console.COMMAND.register(new helpCommand());
+        Console.COMMAND.register(new exitCommand());
+        Console.COMMAND.register(new reloadLocUserCommand());
+        Console.COMMAND.register(new saveLocUserCommand());
     }
 }
 
@@ -23,7 +22,7 @@ class helpCommand implements CommandHandler{
     @Override
     public boolean handleCommand(String[] command) {
         //遍历所有命令
-        Console.command.handlerMap.forEach((k, v) -> {
+        Console.COMMAND.handlerMap.forEach((k, v) -> {
             PrintFormat.println(" - " + k + " : " + v.description(), PrintFormat.OUT);
         });
         return true;

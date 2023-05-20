@@ -43,6 +43,7 @@ public class WebRequest {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         } finally {
             try {
                 if (out != null) {

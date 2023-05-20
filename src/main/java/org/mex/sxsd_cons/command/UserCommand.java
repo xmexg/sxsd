@@ -1,29 +1,25 @@
 package org.mex.sxsd_cons.command;
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt;
-import de.codeshelf.consoleui.prompt.PromtResultItemIF;
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder;
-import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import org.mex.sxsd_cons.Console;
 import org.mex.sxsd_cons.Init;
 import org.mex.sxsd_cons.PrintFormat;
 import org.mex.sxsd_cons.answers.user.BaseUser;
 import org.mex.sxsd_cons.answers.user.UserLogin;
+import org.mex.sxsd_cons.util.myConsoleui.BaseConsoleui;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
-import static org.mex.sxsd_cons.Console.scanner;
+import static org.mex.sxsd_cons.Console.SCANNER;
 
 public class UserCommand {
 
     public UserCommand() {
-        Console.command.register(new LoginCommand());
-        Console.command.register(new LogoutCommand());
-        Console.command.register(new UserListCommand());
-        Console.command.register(new SuUserCommand());
-        Console.command.register(new UserAddCommand());
+        Console.COMMAND.register(new LoginCommand());
+        Console.COMMAND.register(new LogoutCommand());
+        Console.COMMAND.register(new UserListCommand());
+        Console.COMMAND.register(new SuUserCommand());
+        Console.COMMAND.register(new UserAddCommand());
+        Console.COMMAND.register(new MyInfoCommand());
     }
 }
 
@@ -44,7 +40,7 @@ class LoginCommand implements CommandHandler {
             phone = command[1];
         } else {
             pf.print(" + 请输入手机号: ");
-            phone = scanner.nextLine().trim();
+            phone = SCANNER.nextLine().trim();
         }
         if(phone.length() != 11) {
             PrintFormat.println("手机号格式错误", PrintFormat.ERROR);
@@ -55,7 +51,7 @@ class LoginCommand implements CommandHandler {
             return false;
         }
         pf.print(" + 请输入验证码: ");
-        String validate = scanner.nextLine().trim();
+        String validate = SCANNER.nextLine().trim();
         String cookie = UserLogin.Login(phone, validate);
         if(cookie != null) {
             PrintFormat.println("登录成功", PrintFormat.OK);
@@ -83,13 +79,12 @@ class LogoutCommand implements CommandHandler {
     public boolean handleCommand(String[] command) {
         String phone;
         if(command.length != 2) {
-            PrintFormat.print(" + 请输入手机号: ", PrintFormat.INPUT);
-            phone = scanner.nextLine().trim();
+            phone = BaseConsoleui.ListPrompt("请选择要删除的用户", Init.BASEUSERLIST.getBaseUserPhoneList());
         } else{
             phone = command[1];
         }
-        if(phone.length() != 11) {
-            PrintFormat.println("手机号格式错误", PrintFormat.ERROR);
+        if(phone == null || phone.length() != 11) {
+            PrintFormat.println("手机号错误", PrintFormat.ERROR);
             return false;
         }
         boolean res = Init.BASEUSERLIST.removeBaseUser(phone);
@@ -143,31 +138,21 @@ class SuUserCommand implements CommandHandler{
     public boolean handleCommand(String[] command) {
         String phone;
         if(command.length != 2) {
-            List<BaseUser> baseuserList = Init.BASEUSERLIST.getBaseUserList();
-            ConsolePrompt prompt = new ConsolePrompt();
-            PromptBuilder promptBuilder = prompt.getPromptBuilder();
-            ListPromptBuilder suUserPrompt = promptBuilder.createListPrompt()
-                    .name("suUser")
-                    .message("请选择要切换的用户(j:向上,k:向下,回车:确认):")
-                    .newItem().text("退出").add();
-            if(baseuserList != null && baseuserList.size() != 0) {
-                baseuserList.forEach(baseUser -> suUserPrompt.newItem().text(baseUser.Phone).add());
-            }
-            suUserPrompt.addPrompt();
-            try {
-                HashMap<String, ? extends PromtResultItemIF>  userChoose = prompt.prompt(promptBuilder.build());//获取用户选择
-                System.out.println("用户选择的是:" + userChoose.get("suUser"));
-                return true;// 测试
-            } catch (IOException e) {
-                PrintFormat.println("切换用户失败", PrintFormat.ERROR);
+            phone = BaseConsoleui.ListPrompt("请选择要切换的用户", Init.BASEUSERLIST.getBaseUserPhoneList());
+            if (phone == null) {// 选择了退出
+                Init.AUTHUSER.Clear();
                 return false;
             }
         } else {
             phone = command[1];
         }
+        if(phone == null || phone.length() != 11) {
+            PrintFormat.println("手机号存在问题", PrintFormat.ERROR);
+            return false;
+        }
         BaseUser baseUser = Init.BASEUSERLIST.getBaseUser(phone);
         if(baseUser != null) {
-            if(Init.AUTHUSER.Up_User_Info(baseUser.Cookie)){
+            if(Init.AUTHUSER.Up_User_Info(baseUser)){
                 PrintFormat.println("切换成功", PrintFormat.OK);
                 return true;
             }
@@ -183,9 +168,9 @@ class UserAddCommand implements CommandHandler{
         String phone, cookie;
         if(command.length != 3) {
             PrintFormat.print(" + 请输入手机号: ", PrintFormat.INPUT);
-            phone = scanner.nextLine().trim();
+            phone = SCANNER.nextLine().trim();
             PrintFormat.print(" + 请输入cookie: ", PrintFormat.INPUT);
-            cookie = scanner.nextLine().trim();
+            cookie = SCANNER.nextLine().trim();
         } else {
             phone = command[1];
             cookie = command[2];
@@ -205,5 +190,28 @@ class UserAddCommand implements CommandHandler{
     @Override
     public String trigger() {
         return "userAdd";
+    }
+}
+
+class MyInfoCommand implements CommandHandler{
+
+    @Override
+    public String trigger() {
+        return "myInfo";
+    }
+
+    @Override
+    public String description() {
+        return "获取当前用户信息";
+    }
+
+    @Override
+    public boolean handleCommand(String[] command) {
+        if (Init.AUTHUSER.INFO == null) {
+            PrintFormat.println("未切换到用户", PrintFormat.OUT);
+            return true;
+        }
+        PrintFormat.println(Init.AUTHUSER.INFO.toString(), PrintFormat.OUT);
+        return false;
     }
 }

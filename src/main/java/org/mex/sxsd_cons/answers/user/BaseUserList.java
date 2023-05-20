@@ -19,7 +19,6 @@ public class BaseUserList implements Serializable {
     private HashMap<String, BaseUser> baseUserList;
 
     public BaseUserList() {
-        System.out.println("初始化用户数据");
         baseUserList = new HashMap<>();
     }
 
@@ -35,6 +34,11 @@ public class BaseUserList implements Serializable {
     public List<BaseUser> getBaseUserList() {
         if(this.baseUserList == null) return null;
         return new ArrayList<>(this.baseUserList.values());
+    }
+
+    public List<String> getBaseUserPhoneList() {
+        if(this.baseUserList == null) return null;
+        return new ArrayList<>(this.baseUserList.keySet());
     }
 
     public boolean addBaseUser(BaseUser baseUser) {

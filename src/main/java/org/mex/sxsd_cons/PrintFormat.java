@@ -24,6 +24,7 @@ public class PrintFormat {
     LIGHT_WHITE  = "\033[1;37m",
     HELP         = "\033[0;32m",
     OUT          = "\033[0;33m",
+    LIGHT_OUT     = "\033[1;33m",
     ERROR        = "\033[0;31m",
     INPUT        = "\033[0;34m",
     OK           = "\033[0;32m";

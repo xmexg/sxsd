@@ -1,4 +1,4 @@
-package org.mex.sxsd_cons.answers;
+package org.mex.sxsd_cons;
 
 /**
  * 配置文件
