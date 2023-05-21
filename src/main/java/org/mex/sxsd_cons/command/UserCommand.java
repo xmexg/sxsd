@@ -76,6 +76,7 @@ class LoginCommand implements CommandHandler {
         }
         String cookie = UserLogin.Login(phone, validate);
         if(cookie != null) {
+            cookie = "userInfo="+cookie;
             PrintFormat.println("登录成功", PrintFormat.OK);
         } else {
             PrintFormat.println("登录失败", PrintFormat.ERROR);
