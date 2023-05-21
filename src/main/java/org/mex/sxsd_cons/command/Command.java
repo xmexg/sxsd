@@ -20,6 +20,10 @@ public class Command {
 	}
 
 	public boolean execute(String command) {
+		if (command == null) {
+			PrintFormat.println("空指令", PrintFormat.ERROR);
+			return false;
+		}
 		command = command.trim();
 		if(command.equals("")) return false;
 		String[] cmd = command.split("\\s+");

@@ -19,4 +19,10 @@ public class ConsoleuiResult {
         result = result.substring(result.indexOf("selectedId")+12, result.length() - 3);
         return result;
     }
+
+	public static String InputPrompt(HashMap<String, ? extends PromtResultItemIF> InputPrompt) {
+        String result = InputPrompt.toString();
+        result = result.substring(result.indexOf("input")+7, result.length() - 3);
+		return result;
+	}
 }

@@ -13,6 +13,7 @@ public class BaseCommand {
         Console.COMMAND.register(new exitCommand());
         Console.COMMAND.register(new reloadLocUserCommand());
         Console.COMMAND.register(new saveLocUserCommand());
+        Console.COMMAND.register(new reviewModeCommand());
     }
 }
 
@@ -109,5 +110,23 @@ class saveLocUserCommand implements CommandHandler{
     @Override
     public String trigger() {
         return "saveLocUser";
+    }
+}
+
+class reviewModeCommand implements CommandHandler{
+
+    @Override
+    public boolean handleCommand(String[] command) {
+        Init.reviewMode = !Init.reviewMode;
+        PrintFormat.println("复习模式: " + Init.reviewMode, PrintFormat.OUT);
+        return true;
+    }
+    @Override
+    public String description() {
+        return "复习模式";
+    }
+    @Override
+    public String trigger() {
+        return "review";
     }
 }

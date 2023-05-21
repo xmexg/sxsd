@@ -3,7 +3,6 @@ package org.mex.sxsd_cons.answers.user;
 import org.mex.sxsd_cons.Init;
 import org.mex.sxsd_cons.PrintFormat;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;

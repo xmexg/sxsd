@@ -15,10 +15,10 @@ public class StudyCommand {
         Console.COMMAND.register(new Study_ACTIVITY_LIST_CommandHandler());
         Console.COMMAND.register(new Study_ACTIVITY_ANSWER_CommandHandler());
         Console.COMMAND.register(new Study_ACTIVITY_FINISH_CommandHandler());
-        Console.COMMAND.register(new Study_KNOWLWDGE_SCORE_CommandHandler());
-        Console.COMMAND.register(new Study_KNOWLWDGE_ANSWER_CommandHandler());
-        Console.COMMAND.register(new Study_KNOWLWDGE_FINISH_CommandHandler());
-
+        Console.COMMAND.register(new Study_KNOWLEDGE_SCORE_CommandHandler());
+        Console.COMMAND.register(new Study_KNOWLEDGE_ANSWER_CommandHandler());
+        Console.COMMAND.register(new Study_KNOWLEDGE_FINISH_CommandHandler());
+        Console.COMMAND.register(new USER_SCORE_CommandHandler());
     }
 }
 
@@ -32,7 +32,7 @@ class Study_MAIN_LIST_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        if (Init.AUTHUSER == null) {
+        if (Init.AUTHUSER.INFO == null) {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
@@ -60,7 +60,7 @@ class Study_ACTIVITY_LIST_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        if (Init.AUTHUSER == null) {
+        if (Init.AUTHUSER.INFO == null) {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
@@ -101,7 +101,7 @@ class Study_ACTIVITY_ANSWER_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        if (Init.AUTHUSER == null) {
+        if (Init.AUTHUSER.INFO == null) {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
@@ -167,17 +167,17 @@ class Study_ACTIVITY_FINISH_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        if (Init.AUTHUSER == null) {
+        if (Init.AUTHUSER.INFO == null) {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
-        PrintFormat.print(" ? 请输入做题用时(毫秒,过小时会答题失败): ", PrintFormat.LIGHT_OUT);
+        PrintFormat.print(" ? 请输入做题总用时(毫秒,过小时会答题失败,<=0时随机生成): ", PrintFormat.LIGHT_OUT);
         int time = Integer.parseInt(Console.SCANNER.next());
-        return AnswerTool.Auto_Activity_Finish(Init.AUTHUSER, time);
+        return AnswerTool.Auto_Activity_Finish(Init.AUTHUSER, time, Init.reviewMode);
     }
 }
 
-class Study_KNOWLWDGE_SCORE_CommandHandler implements CommandHandler {
+class Study_KNOWLEDGE_SCORE_CommandHandler implements CommandHandler {
     public String trigger() {
         return "study_know_score";
     }
@@ -187,11 +187,17 @@ class Study_KNOWLWDGE_SCORE_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        return false;
+        JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(null, Init.AUTHUSER.INFO.get("gradeId").getAsInt(),  Init.AUTHUSER.INFO.get("accountId").getAsInt(), 0, Init.AUTHUSER.COOKIE));
+        if (res == null) {
+            PrintFormat.println("获取知识关卡得分失败", PrintFormat.ERROR);
+            return false;
+        }
+        res.forEach((v) -> PrintFormat.println(" - " + v.toString(), PrintFormat.OUT));
+        return true;
     }
 }
 
-class Study_KNOWLWDGE_ANSWER_CommandHandler implements CommandHandler {
+class Study_KNOWLEDGE_ANSWER_CommandHandler implements CommandHandler {
     public String trigger() {
         return "study_know_answer";
     }
@@ -201,11 +207,43 @@ class Study_KNOWLWDGE_ANSWER_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        return false;
+        JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(null, Init.AUTHUSER.INFO.get("gradeId").getAsInt(),  Init.AUTHUSER.INFO.get("accountId").getAsInt(), 0, Init.AUTHUSER.COOKIE));
+        if (res == null) {
+            PrintFormat.println("获取知识关卡列表失败", PrintFormat.ERROR);
+            return false;
+        }
+        res.forEach((v) -> {
+            JsonObject obj1 = v.getAsJsonObject();
+            int logicPaperId = obj1.get("logicPaperId").getAsInt();
+            JsonObject res2 = WebResponseData.GetDataAsJsonObject(new Studyer().GET_KNOWLEDGE_ANSWER(Init.AUTHUSER.INFO.get("accountId").getAsInt(), Init.AUTHUSER.INFO.get("gradeId").getAsInt(), null, 0, logicPaperId, 0, Init.AUTHUSER.COOKIE));
+            if (res2 == null) {
+                PrintFormat.println("获取知识关卡试题及答案失败,可能达到了做题上限", PrintFormat.ERROR);
+                return;
+            }
+            PrintFormat.println("\n - 当前关卡: " + obj1.get("logicPaperId").toString(), PrintFormat.LIGHT_OUT);
+            JsonArray res3 = res2.getAsJsonArray("questions");
+            res3.forEach((v3) -> {
+                JsonObject obj3 = v3.getAsJsonObject();
+                JsonArray res4 = obj3.getAsJsonArray("items");
+                PrintFormat.println(" | - ? " + obj3.get("title").getAsString(), PrintFormat.OUT);
+                res4.forEach((v4) -> {
+                    JsonObject obj4 = v4.getAsJsonObject();
+                    boolean isRight = obj4.get("isRight").getAsBoolean();
+                    String out;
+                    if (isRight) {
+                        out = "[ " + obj4.get("itemContent").getAsString() + " ]";
+                    } else {
+                        out = obj4.get("itemContent").getAsString();
+                    }
+                    PrintFormat.println(" | - : " + out, PrintFormat.OUT);
+                });
+            });
+        });
+        return true;
     }
 }
 
-class Study_KNOWLWDGE_FINISH_CommandHandler implements CommandHandler {
+class Study_KNOWLEDGE_FINISH_CommandHandler implements CommandHandler {
     public String trigger() {
         return "study_know_finish";
     }
@@ -215,6 +253,36 @@ class Study_KNOWLWDGE_FINISH_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
-        return false;
+        if (Init.AUTHUSER.INFO == null) {
+            PrintFormat.println("请先切换用户", PrintFormat.ERROR);
+            return false;
+        }
+        PrintFormat.print(" ? 请输入每道题做题用时(毫秒,过小时会答题失败,<=0时随机生成): ", PrintFormat.LIGHT_OUT);
+        int time = Integer.parseInt(Console.SCANNER.next());
+        return AnswerTool.Auto_KNOWLEDGE_Finish(Init.AUTHUSER, time, 0, Init.reviewMode);
+    }
+}
+
+class USER_SCORE_CommandHandler implements CommandHandler {
+    public String trigger() {
+        return "myScore";
+    }
+
+    public String description() {
+        return "获取用户成绩";
+    }
+
+    public boolean handleCommand(String[] command) {
+        if (Init.AUTHUSER.INFO == null) {
+            PrintFormat.println("请先切换用户", PrintFormat.ERROR);
+            return false;
+        }
+        JsonObject res = WebResponseData.GetDataAsJsonObject(new Studyer().GET_USER_SCORE(Init.AUTHUSER.INFO.get("accountId").getAsInt(), Init.AUTHUSER.COOKIE));
+        if (res == null) {
+            PrintFormat.println("获取用户得分失败", PrintFormat.ERROR);
+            return false;
+        }
+        PrintFormat.println(" - " + res, PrintFormat.OUT);
+        return true;
     }
 }

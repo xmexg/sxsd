@@ -58,32 +58,57 @@ public class Studyer implements StudyerInterface {
     }
 
     /**
-     * 获取知识点列表
-     * @param originIds
-     * @param gradeId
-     * @param accountId
-     * @param ver
-     * @param cookie
-     * @return
+     * 获取知识关卡成绩
+     * @param originIds 任填,默认为35
+     * @param gradeId 年级ID
+     * @param accountId 账户ID
+     * @param ver 任填,默认为1
+     * @param cookie Cookie
+     * @return 返回知识点成绩的响应
      */
     @Override
-    public String GET_KNOWLEDGE_SCORE(int originIds, int gradeId, int accountId, int ver, String cookie) {
-        originIds = originIds == 0 ? 35 : originIds;
+    public String GET_KNOWLEDGE_SCORE(String originIds, int gradeId, int accountId, int ver, String cookie) {
+        originIds = originIds == null ? "35" : originIds;
+        ver = ver == 0 ? 1 : ver;
         return WebRequest.send(BaseNetLink.KONWLEDGE_SCORE + "?originIds=" + originIds + "&gradeId=" + gradeId + "&accountId=" + accountId + "&ver=" + ver, cookie, BaseNetLink.BaseHeaders_GET, null);
     }
 
+    /**
+     * 获取知识关卡题目
+     * @param accountId 账户ID
+     * @param gradeId 年级ID
+     * @param originIds 任填,默认为35
+     * @param ver 任填,默认为1
+     * @param logicPaperId 第几个关卡
+     * @param reTry 任填,默认为1
+     * @param cookie Cookie
+     * @return 返回知识点题目的响应
+     */
     @Override
-    public String GET_KNOWLEDGE_ANSWER(int accountId, int gradeId, int originIds, int ver, int logicPaperId, int reTry, String cookie) {
-        originIds = originIds == 0 ? 35 : originIds;
-        reTry = reTry == 0 ? 1 : reTry;
+    public String GET_KNOWLEDGE_ANSWER(int accountId, int gradeId, String originIds, int ver, int logicPaperId, int reTry, String cookie) {
+        originIds = originIds == null ? "35" : originIds;
+        ver = ver <= 0 ? 1 : ver;
+        reTry = reTry <= 0 ? 1 : reTry;
         return WebRequest.send(BaseNetLink.KONWLEDGE_ANSWER + "?accountId=" + accountId + "&gradeId=" + gradeId + "&originIds=" + originIds + "&ver=" + ver + "&logicPaperId=" + logicPaperId + "&reTry=" + reTry, cookie, BaseNetLink.BaseHeaders_GET, null);
     }
 
+    /**
+     * 完成知识关卡
+     * @param cookie Cookie
+     * @param Body 请求体
+     * @return 是否完成知识关卡
+     */
     @Override
     public String POST_KNOWLEDGE_FINISH(String cookie, String Body) {
         return WebRequest.send(BaseNetLink.KONWLEDGE_FINISH, cookie, BaseNetLink.BaseHeaders_POST, Body);
     }
 
+    /**
+     * 获取用户成绩
+     * @param accountId 账户ID
+     * @param cookie Cookie
+     * @return 返回用户成绩的响应
+     */
     @Override
     public String GET_USER_SCORE(int accountId, String cookie) {
         return WebRequest.send(BaseNetLink.USER_SCORE + "?accountId=" + accountId, cookie, BaseNetLink.BaseHeaders_GET, null);

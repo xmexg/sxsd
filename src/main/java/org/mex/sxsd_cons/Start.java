@@ -1,7 +1,5 @@
 package org.mex.sxsd_cons;
 
-import org.mex.sxsd_cons.answers.user.BaseUserList;
-
 public class Start {
 	
 	static String LOGO = "   ,-,--.           ,-.--,    ,-,--.\n"

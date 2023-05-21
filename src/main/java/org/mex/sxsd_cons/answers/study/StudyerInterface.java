@@ -28,10 +28,10 @@ public interface StudyerInterface {
     String POST_STUDY_ACTIVITY_FINISH(String cookie, String Body);
 
     //originIds任填,35 gradeId=14年级 accountId帐号 ver任填,1 cookie
-    String GET_KNOWLEDGE_SCORE(int originIds, int gradeId, int accountId, int ver, String cookie);
+    String GET_KNOWLEDGE_SCORE(String originIds, int gradeId, int accountId, int ver, String cookie);
 
     //accountId学号 gradeId年级 originIds任填,35 ver任填,1 logicPaperId第几套试题 reTry任填,1 cookie
-    String GET_KNOWLEDGE_ANSWER(int accountId, int gradeId, int originIds, int ver, int logicPaperId, int reTry, String cookie);
+    String GET_KNOWLEDGE_ANSWER(int accountId, int gradeId, String originIds, int ver, int logicPaperId, int reTry, String cookie);
 
     //cookie body
     String POST_KNOWLEDGE_FINISH(String cookie, String Body);
