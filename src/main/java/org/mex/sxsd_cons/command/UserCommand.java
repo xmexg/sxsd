@@ -1,15 +1,17 @@
 package org.mex.sxsd_cons.command;
 
+import de.codeshelf.consoleui.prompt.ConsolePrompt;
+import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import org.mex.sxsd_cons.Console;
 import org.mex.sxsd_cons.Init;
 import org.mex.sxsd_cons.PrintFormat;
 import org.mex.sxsd_cons.answers.user.BaseUser;
 import org.mex.sxsd_cons.answers.user.UserLogin;
 import org.mex.sxsd_cons.util.myConsoleui.BaseConsoleui;
+import org.mex.sxsd_cons.util.myConsoleui.ConsoleuiResult;
 
 import java.util.List;
 
-import static org.mex.sxsd_cons.Console.SCANNER;
 
 public class UserCommand {
 
@@ -35,12 +37,21 @@ class LoginCommand implements CommandHandler {
     @Override
     public boolean handleCommand(String[] command) {
         String phone;
-        PrintFormat pf = new PrintFormat(PrintFormat.INPUT);
         if(command.length == 2) {
             phone = command[1];
         } else {
-            pf.print(" + 请输入手机号: ");
-            phone = SCANNER.nextLine().trim();
+            ConsolePrompt prompt = new ConsolePrompt();
+            PromptBuilder promptBuilder = prompt.getPromptBuilder();
+            promptBuilder.createInputPrompt()
+                    .name("phone")
+                    .message("请输入手机号: ")
+                    .defaultValue("")
+                    .addPrompt();
+            try{
+                phone = ConsoleuiResult.InputPrompt(prompt.prompt(promptBuilder.build()));
+            } catch (Exception e){
+                phone = "";
+            }
         }
         if(phone.length() != 11) {
             PrintFormat.println("手机号格式错误", PrintFormat.ERROR);
@@ -50,8 +61,19 @@ class LoginCommand implements CommandHandler {
             PrintFormat.println("无法发送验证码", PrintFormat.ERROR);
             return false;
         }
-        pf.print(" + 请输入验证码: ");
-        String validate = SCANNER.nextLine().trim();
+        ConsolePrompt prompt = new ConsolePrompt();
+        PromptBuilder promptBuilder = prompt.getPromptBuilder();
+        promptBuilder.createInputPrompt()
+                .name("validate")
+                .message("请输入验证码: ")
+                .defaultValue("")
+                .addPrompt();
+        String validate;
+        try{
+            validate = ConsoleuiResult.InputPrompt(prompt.prompt(promptBuilder.build()));
+        } catch (Exception e){
+            validate = "";
+        }
         String cookie = UserLogin.Login(phone, validate);
         if(cookie != null) {
             PrintFormat.println("登录成功", PrintFormat.OK);
@@ -60,7 +82,6 @@ class LoginCommand implements CommandHandler {
             return false;
         }
         BaseUser baseUser = new BaseUser(phone, cookie);
-        System.out.println(baseUser.Cookie);
         Init.BASEUSERLIST.addBaseUser(baseUser);
         return true;
     }
@@ -115,7 +136,6 @@ class UserListCommand implements CommandHandler {
             return true;
         }
         for(int i = 0; i < baseUserList.size(); i++) { // 这样写有序号
-//          PrintFormat.println("  " + (i+1) + " : " + this.baseUserList.get(i).Phone + " - " + this.baseUserList.get(i).Cookie, PrintFormat.OUT);
             PrintFormat.println("  " + (i+1) + " : " + baseUserList.get(i).Phone + " - " + baseUserList.get(i).Cookie, PrintFormat.OUT);
         }
         return true;
@@ -157,6 +177,7 @@ class SuUserCommand implements CommandHandler{
                 return true;
             }
         }
+        PrintFormat.println("切换失败", PrintFormat.ERROR);
         return false;
     }
 }
@@ -167,10 +188,30 @@ class UserAddCommand implements CommandHandler{
     public boolean handleCommand(String[] command) {
         String phone, cookie;
         if(command.length != 3) {
-            PrintFormat.print(" + 请输入手机号: ", PrintFormat.INPUT);
-            phone = SCANNER.nextLine().trim();
-            PrintFormat.print(" + 请输入cookie: ", PrintFormat.INPUT);
-            cookie = SCANNER.nextLine().trim();
+            ConsolePrompt prompt = new ConsolePrompt();
+            PromptBuilder promptBuilder = prompt.getPromptBuilder();
+            promptBuilder.createInputPrompt()
+                    .name("phone")
+                    .message("请输入手机号: ")
+                    .defaultValue("")
+                    .addPrompt();
+            try{
+                phone = ConsoleuiResult.InputPrompt(prompt.prompt(promptBuilder.build()));
+            } catch (Exception e){
+                phone = "";
+            }
+            ConsolePrompt prompt2 = new ConsolePrompt();
+            PromptBuilder promptBuilder2 = prompt2.getPromptBuilder();
+            promptBuilder2.createInputPrompt()
+                    .name("phone")
+                    .message("请输入cookie: ")
+                    .defaultValue("")
+                    .addPrompt();
+            try{
+                cookie = ConsoleuiResult.InputPrompt(prompt2.prompt(promptBuilder2.build()));
+            } catch (Exception e){
+                cookie = "";
+            }
         } else {
             phone = command[1];
             cookie = command[2];

@@ -1,7 +1,6 @@
 package org.mex.sxsd_cons;
 
 import de.codeshelf.consoleui.prompt.ConsolePrompt;
-import de.codeshelf.consoleui.prompt.ListPrompt;
 import de.codeshelf.consoleui.prompt.PromtResultItemIF;
 import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import jline.console.completer.StringsCompleter;
@@ -19,10 +18,13 @@ import java.util.Scanner;
 public class Console {
 
     public static Command COMMAND = new Command();
-    public static Scanner SCANNER = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);// 过时的方法,不应该再使用
+    private static ConsolePrompt PROMPT;
 
     public void start() {
         Up_Command();
+        AnsiConsole.systemInstall();
+        PROMPT = new ConsolePrompt();
         while (true) {
             showConsole2();
         }
@@ -34,6 +36,10 @@ public class Console {
         new StudyCommand();
     }
 
+    /**
+     * 显示控制台
+     * 过时的控制台,不应该再使用
+     */
     private void showConsole(){
         PrintFormat.setColor(PrintFormat.LIGHT_GREEN);
         String nowUser = Init.AUTHUSER.INFO == null ? "noBody" : Init.AUTHUSER.INFO.get("userName").getAsString();
@@ -43,12 +49,15 @@ public class Console {
         COMMAND.execute(command);
     }
 
+    /**
+     * 显示控制台
+     * 正在使用的控制台
+     */
     private void showConsole2(){
         PrintFormat.setColor(PrintFormat.LIGHT_GREEN);
         String nowUser = Init.AUTHUSER.INFO == null ? "noBody" : Init.AUTHUSER.INFO.get("userName").getAsString();
-        AnsiConsole.systemInstall();
-        ConsolePrompt prompt = new ConsolePrompt();
-        PromptBuilder promptBuilder = prompt.getPromptBuilder();
+
+        PromptBuilder promptBuilder = PROMPT.getPromptBuilder();
         StringsCompleter completer = new StringsCompleter(COMMAND.handlerMap.keySet());
         promptBuilder.createInputPrompt()
                 .name("name")
@@ -58,7 +67,7 @@ public class Console {
                 .addPrompt();
         HashMap<String, ? extends PromtResultItemIF> result = null;
         try {
-             result = prompt.prompt(promptBuilder.build());
+             result = PROMPT.prompt(promptBuilder.build());
         } catch (IOException e) {
             e.printStackTrace();
         }

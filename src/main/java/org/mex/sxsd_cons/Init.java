@@ -12,7 +12,7 @@ import java.io.ObjectInputStream;
  */
 public class Init {
 
-    public static final String VERSION = "0.0.2";// 版本号
+    public static final String VERSION = "0.0.3";// 版本号
     public static Config CONFIG = new Config();// 配置文件
     public static BaseUserList BASEUSERLIST = new BaseUserList();// 基础用户列表
     public static AuthUser AUTHUSER = new AuthUser();// 当前用户身份

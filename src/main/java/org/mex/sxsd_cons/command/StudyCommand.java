@@ -2,12 +2,15 @@ package org.mex.sxsd_cons.command;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import de.codeshelf.consoleui.prompt.ConsolePrompt;
+import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import org.mex.sxsd_cons.Console;
 import org.mex.sxsd_cons.Init;
 import org.mex.sxsd_cons.PrintFormat;
 import org.mex.sxsd_cons.answers.net.WebResponseData;
 import org.mex.sxsd_cons.answers.study.AnswerTool;
 import org.mex.sxsd_cons.answers.study.Studyer;
+import org.mex.sxsd_cons.util.myConsoleui.ConsoleuiResult;
 
 public class StudyCommand {
     public StudyCommand() {
@@ -171,8 +174,19 @@ class Study_ACTIVITY_FINISH_CommandHandler implements CommandHandler {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
-        PrintFormat.print(" ? 请输入做题总用时(毫秒,过小时会答题失败,<=0时随机生成): ", PrintFormat.LIGHT_OUT);
-        int time = Integer.parseInt(Console.SCANNER.next());
+        ConsolePrompt prompt = new ConsolePrompt();
+        PromptBuilder promptBuilder = prompt.getPromptBuilder();
+        promptBuilder.createInputPrompt()
+            .name("time")
+            .message("请输入做题总用时(毫秒,过小时会答题失败,<=0时随机生成): ")
+            .defaultValue("0")
+            .addPrompt();
+        int time;
+        try{
+            time = Integer.parseInt(ConsoleuiResult.InputPrompt(prompt.prompt(promptBuilder.build())));
+        } catch (Exception e){
+            time = 0;
+        }
         return AnswerTool.Auto_Activity_Finish(Init.AUTHUSER, time, Init.reviewMode);
     }
 }
@@ -187,6 +201,10 @@ class Study_KNOWLEDGE_SCORE_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
+        if(Init.AUTHUSER.INFO == null){
+            PrintFormat.println("请先切换用户", PrintFormat.ERROR);
+            return false;
+        }
         JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(null, Init.AUTHUSER.INFO.get("gradeId").getAsInt(),  Init.AUTHUSER.INFO.get("accountId").getAsInt(), 0, Init.AUTHUSER.COOKIE));
         if (res == null) {
             PrintFormat.println("获取知识关卡得分失败", PrintFormat.ERROR);
@@ -207,6 +225,10 @@ class Study_KNOWLEDGE_ANSWER_CommandHandler implements CommandHandler {
     }
 
     public boolean handleCommand(String[] command) {
+        if(Init.AUTHUSER.INFO == null){
+            PrintFormat.println("请先切换用户", PrintFormat.ERROR);
+            return false;
+        }
         JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(null, Init.AUTHUSER.INFO.get("gradeId").getAsInt(),  Init.AUTHUSER.INFO.get("accountId").getAsInt(), 0, Init.AUTHUSER.COOKIE));
         if (res == null) {
             PrintFormat.println("获取知识关卡列表失败", PrintFormat.ERROR);
@@ -257,9 +279,20 @@ class Study_KNOWLEDGE_FINISH_CommandHandler implements CommandHandler {
             PrintFormat.println("请先切换用户", PrintFormat.ERROR);
             return false;
         }
-        PrintFormat.print(" ? 请输入每道题做题用时(毫秒,过小时会答题失败,<=0时随机生成): ", PrintFormat.LIGHT_OUT);
-        int time = Integer.parseInt(Console.SCANNER.next());
-        return AnswerTool.Auto_KNOWLEDGE_Finish(Init.AUTHUSER, time, 0, Init.reviewMode);
+        ConsolePrompt prompt = new ConsolePrompt();
+        PromptBuilder promptBuilder = prompt.getPromptBuilder();
+        promptBuilder.createInputPrompt()
+                .name("time")
+                .message("请输入每道题做题用时(毫秒,过小时会答题失败,<=0时随机生成): ")
+                .defaultValue("0")
+                .addPrompt();
+        int time;
+        try{
+            time = Integer.parseInt(ConsoleuiResult.InputPrompt(prompt.prompt(promptBuilder.build())));
+        } catch (Exception e){
+            time = 0;
+        }
+        return AnswerTool.Auto_KNOWLEDGE_Finish(Init.AUTHUSER, time, null, 2, Init.reviewMode);
     }
 }
 

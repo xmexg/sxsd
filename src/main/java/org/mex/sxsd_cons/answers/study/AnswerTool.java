@@ -2,6 +2,7 @@ package org.mex.sxsd_cons.answers.study;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.mex.sxsd_cons.PrintFormat;
 import org.mex.sxsd_cons.answers.net.WebResponseData;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 public class AnswerTool {
 
     /**
-     * 自动完成所有活动
+     * 自动完成书目关卡
      * @param authUser 已登录的用户
      * @param costTime 答题总耗时
      * @param redo 是否重做
@@ -132,12 +133,36 @@ public class AnswerTool {
         return questions;
     }
 
-    public static boolean Auto_KNOWLEDGE_Finish(AuthUser authuser, int costTime, int retry, boolean redo) {
+    /**
+     * 自动完成知识关卡
+     * @param authuser
+     * @param costTime
+     * @param retry
+     * @param redo
+     * @return
+     */
+    public static boolean Auto_KNOWLEDGE_Finish(AuthUser authuser, int costTime, String originIds, int retry, boolean redo) {
         int gradeId = authuser.INFO.get("gradeId").getAsInt();
         int accountId = authuser.INFO.get("accountId").getAsInt();
         String cookie = authuser.COOKIE;
         int finalRetry = retry == 0 ? 1 : retry;
-        JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(null, gradeId,  accountId, 0, cookie));
+        String up_originIds = null;
+        if (originIds == null || originIds.equals("")) {
+            JsonArray originIdsList = WebResponseData.GetDataAsJsonArray(new Studyer().GET_STUDY_MAIN_LIST(gradeId, cookie));
+            if (originIdsList != null) {
+                for(int i=0; i < originIdsList.size(); i++){
+                    JsonObject obj = originIdsList.get(i).getAsJsonObject();
+                    up_originIds += obj.get("pretestAppId").getAsString();
+                    if (i != originIdsList.size() - 1)
+                        up_originIds += "-";
+                }
+            } else {
+                up_originIds = originIds;
+            }
+        } else {
+            up_originIds = originIds;
+        }
+        JsonArray res = WebResponseData.GetDataAsJsonArray(new Studyer().GET_KNOWLEDGE_SCORE(up_originIds, gradeId,  accountId, 0, cookie));
         if (res == null) {
             PrintFormat.println("获取知识关卡列表失败", PrintFormat.ERROR);
             return false;
@@ -179,10 +204,10 @@ public class AnswerTool {
      * 生成知识关卡的答案
      * @param answer 题目的data部分
      * @param costTime 答题总耗时
-     * @param accountId
-     * @param gradeId
+     * @param accountId 用户id
+     * @param gradeId 年级id
      * @param retry 之前获取答案时使用的retry的值
-     * @return
+     * @return 答案的请求体
      */
     public static String Knowledge_answerBuilder(JsonObject answer, int costTime, int accountId, int gradeId, int retry) {
         int AllCostTime = 0;
